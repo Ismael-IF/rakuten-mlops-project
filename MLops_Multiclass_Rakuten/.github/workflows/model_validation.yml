@@ -1,0 +1,22 @@
+name: ML - Model Integrity Check
+
+on:
+  push:
+    paths:
+      - 'rakuten_api/app/models/trained_models/**'
+
+jobs:
+  validate-model:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configuration Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.8"
+      - name: Installation des outils de chargement
+        run: pip install joblib scikit-learn tensorflow
+      - name: Test de chargement du modèle
+        run: |
+          # Vérifie si le fichier final_model.pkl est lisible
+          python -c "import joblib; model = joblib.load('rakuten_api/app/models/trained_models/final_model.pkl'); print('Modèle chargé avec succès')"

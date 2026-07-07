@@ -1,0 +1,42 @@
+name: CD - Build and Push API
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'app/**' # Ajusté selon votre structure réelle
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # ÉTAPE CRUCIALE : Convertir le nom en minuscules
+      - name: Lowercase repo name
+        run: |
+          echo "REPO_LC=${GITHUB_REPOSITORY,,}" >> ${GITHUB_ENV}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          # On utilise ici le contexte où se trouve votre Dockerfile
+          # Si votre Dockerfile est à la racine, mettez .
+          # S'il est dans un dossier 'app', mettez ./app
+          context: . 
+          push: true
+          # On utilise la variable REPO_LC (en minuscules)
+          tags: |
+            ghcr.io/${{ env.REPO_LC }}/mon_api_rakuten:latest

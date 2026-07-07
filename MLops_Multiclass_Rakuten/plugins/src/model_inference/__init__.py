@@ -1,0 +1,2 @@
+from src.model_inference.model_loader import load_text_model
+from src.model_inference.predictions import predict_text_model

@@ -1,0 +1,22 @@
+name: Airflow - DAG Syntax Validation
+
+on:
+  push:
+    paths:
+      - 'dags/**'
+
+jobs:
+  dag-validation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configuration Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.8"
+      - name: Installation de Airflow
+        run: pip install apache-airflow
+      - name: Analyse des erreurs d'importation
+        run: |
+          # Vérifie si Airflow détecte des erreurs dans le dossier dags/
+          python -c "from airflow.models import DagBag; dagbag = DagBag(dag_folder='dags/', include_examples=False); print('Erreurs trouvées:', dagbag.import_errors); assert len(dagbag.import_errors) == 0"

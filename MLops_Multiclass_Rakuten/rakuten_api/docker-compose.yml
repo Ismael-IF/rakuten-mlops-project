@@ -1,0 +1,68 @@
+version: "3.9"
+
+services:
+    db:
+        image: mongo:4.0.4
+        container_name: mongodb_from_compose
+        ports:
+            - 27017:27017
+           
+        volumes:            
+            - fastAPI_volume:/home/data
+    
+    fastApi_rakuten:
+        image: mon_api_rakuten:latest
+        container_name: rakuten_Api_from_compose
+        ports:
+         - target: 8009
+           published: 8009
+           protocol: tcp
+           mode: host           
+        environment:
+           - DB_URL=mongodb://db/rakuten_users_db
+    
+        volumes:
+      - ./data:/home/data         
+        hostname: fastApi_rakuten          
+        depends_on:
+            - db
+            
+    authentication:   
+        image:  authentication_image        
+        container_name: authentication_from_compose        
+        environment:
+          LOG: 1       
+        volumes:
+            - fastAPI_volume:/home/data           
+        depends_on:
+            - db
+            - 'fastApi_rakuten'
+            
+    authorization:   
+        image:  authorization_image        
+        container_name: authorization_from_compose        
+        environment:
+          LOG: 1          
+        volumes:
+            - fastAPI_volume:/home/data           
+        depends_on:
+             - db
+             - 'fastApi_rakuten'
+             - 'authentication'              
+ 
+    prediction:
+   
+        image:  prediction_image        
+        container_name: prediction_from_compose        
+        environment:
+          LOG: 1              
+        volumes:
+            - fastAPI_volume:/home/data           
+        depends_on:
+             - db
+             - 'fastApi_rakuten'
+             - 'authentication'
+             - 'authorization'
+             
+volumes:
+    - ./data:/home/data

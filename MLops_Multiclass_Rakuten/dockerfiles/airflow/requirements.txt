@@ -1,0 +1,13 @@
+tqdm
+mlflow
+dvc
+scikit-learn
+keras_preprocessing
+nltk
+numpy
+opencv_python
+pandas
+Pillow
+requests
+streamlit
+tensorflow
